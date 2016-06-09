@@ -20,6 +20,8 @@ script:
   # Run tests with "--race" and "-v" ("verbose output") flags and
   # calculate the test coverage of the repo and its subpackages, if necessary.
   - gotestcover -coverprofile=coverage.txt --race -v github.com/alkchr/pp/...
+after_success:
+  - bash <(curl -s https://codecov.io/bash) # Send the coverage profile to codecov service.
 matrix:
   allow_failures:
     - go: tip
