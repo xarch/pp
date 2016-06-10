@@ -6,6 +6,8 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/alkchr/pp/routes"
+
 	"github.com/goaltools/iniflag"
 )
 
@@ -30,7 +32,8 @@ func main() {
 	// Allocate and run a new server. Depending on the
 	// configuration use either HTTP or HTTPS.
 	s := &http.Server{
-		Addr: *addr,
+		Addr:    *addr,
+		Handler: routes.Handler(),
 	}
 	switch *tls {
 	case true:
