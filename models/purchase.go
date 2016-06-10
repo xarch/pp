@@ -1,6 +1,8 @@
 package models
 
 import (
+	"encoding/json"
+	"fmt"
 	"path"
 	"time"
 )
@@ -21,7 +23,20 @@ type Purchase struct {
 // PurchasesByUsername gets a username and a limit number as input
 // arguments and returns a list of purchases that belong to the
 // related user.
-// If limit is equal to 0, it assumes there is no limit.
-func PurchasesByUsername(username string, limit uint) []Purchase {
-	return nil
+func PurchasesByUsername(username string, limit uint) ([]Purchase, error) {
+	ps := []Purchase{}
+
+	// Do a GET request to the remote server.
+	res, err := get(fmt.Sprintf(apiPurchasesByUsername, username, limit))
+	if err != nil {
+		return nil, err
+	}
+
+	// Try to parse the body of the response.
+	err = json.Unmarshal(res, &ps)
+	if err != nil {
+		return nil, err
+	}
+
+	return ps, nil
 }
