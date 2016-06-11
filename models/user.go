@@ -1,11 +1,7 @@
 package models
 
-import (
-	"path"
-)
-
-var (
-	apiUserByUsername = path.Join(remoteAPI, "users/%s")
+const (
+	apiUserByUsername = "users/%s"
 )
 
 // User is a type that represents a single customer

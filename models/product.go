@@ -1,11 +1,7 @@
 package models
 
-import (
-	"path"
-)
-
-var (
-	apiProductByID = path.Join(remoteAPI, "products/%d")
+const (
+	apiProductByID = "products/%d"
 )
 
 // Product is a model of a single product
