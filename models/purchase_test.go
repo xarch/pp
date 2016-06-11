@@ -77,6 +77,6 @@ var emptyH = func(w http.ResponseWriter, r *http.Request) {
 }
 
 var testPurchases = []Purchase{
-	{123, 321, "JohnDoe", time.Now()},
-	{222, 444, "Mr.X", time.Now()},
+	{123, 321, "JohnDoe", time.Now().Round(time.Minute)},
+	{222, 444, "Mr.X", time.Now().Round(time.Minute)},
 }
