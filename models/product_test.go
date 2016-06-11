@@ -12,7 +12,7 @@ func TestProductByID(t *testing.T) {
 	r := mux.NewRouter()
 	r.HandleFunc("/api/products/{id}", renderJSONHandlerFn(testProduct))
 
-	// Creating a test server with the API.
+	// Creating a test server imitating a third party API.
 	s := httptest.NewServer(r)
 	defer s.Close()
 
