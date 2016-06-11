@@ -19,7 +19,7 @@ type Product struct {
 
 // ProductByID receives a product info with the requested ID
 // from a third party API.
-func ProductByID(id string) (p *Product, err error) {
+func ProductByID(id int) (p *Product, err error) {
 	err = objectFromURN(fmt.Sprintf(apiProductByID, id), &p)
 	return
 }

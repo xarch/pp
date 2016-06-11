@@ -1,7 +1,6 @@
 package models
 
 import (
-	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -17,8 +16,8 @@ func TestPurchasesByArgument(t *testing.T) {
 	a := r.Path("/api/").Subrouter()
 	a.HandleFunc("/purchases/by_user/test", http.NotFoundHandler().ServeHTTP)
 	a.HandleFunc("/purchases/by_user/empty", emptyH)
-	a.HandleFunc("/purchases/by_user/{id}", testPurchasesByArgH)
-	a.HandleFunc("/purchases/by_product/{id}", testPurchasesByArgH)
+	a.HandleFunc("/purchases/by_user/{id}", renderJSONHandlerFn(testPurchases))
+	a.HandleFunc("/purchases/by_product/{id}", renderJSONHandlerFn(testPurchases))
 
 	// Creating a test server with the API.
 	s := httptest.NewServer(a)
@@ -65,26 +64,6 @@ func deepEqualPurchases(ps1, ps2 []Purchase) bool {
 		}
 	}
 	return true
-}
-
-// testPurchasesByArgH is a handler that imitates the third
-// party API that provides purchases by username / id.
-var testPurchasesByArgH = func(w http.ResponseWriter, r *http.Request) {
-	// Transform the test list of purchases into JSON.
-	res, err := json.Marshal(testPurchases)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	// Render the result.
-	w.Header().Add("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	w.Write(res)
-}
-
-// emptyH is a handler that renders an empty page.
-var emptyH = func(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusOK)
 }
 
 var testPurchases = []Purchase{
