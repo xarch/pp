@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
-	"reflect"
 	"testing"
 	"time"
 
@@ -34,7 +33,7 @@ func TestPurchasesByArgument(t *testing.T) {
 		PurchasesByProductID,
 	} {
 		ps, err := fn("xxx", 0)
-		if err != nil || !reflect.DeepEqual(ps, testPurchases) {
+		if err != nil || !deepEqualPurchases(testPurchases, ps) {
 			t.Errorf(`Test %d: Expected %#v, "nil". Got %#v, "%v".`, i, testPurchases, ps, err)
 		}
 	}
@@ -48,6 +47,24 @@ func TestPurchasesByArgument(t *testing.T) {
 			t.Errorf(`Test %d: Expected no result and an error. Got %v, "%v".`, i, ps, err)
 		}
 	}
+}
+
+// deepEqualPurchases compares two sets of purchases and makes sure they are equal
+// to each other. reflect.Deep is not an option as Location field
+// of Date parameter is a pointer that will be different in the original
+// and marshalled objects.
+func deepEqualPurchases(ps1, ps2 []Purchase) bool {
+	if len(ps1) != len(ps2) {
+		return false
+	}
+	for i := 0; i < len(ps1); i++ {
+		if ps1[i].ID != ps2[i].ID || ps1[i].ProductID != ps2[i].ProductID ||
+			ps1[i].Username != ps2[i].Username || ps1[i].Date.String() != ps2[i].Date.String() {
+
+			return false
+		}
+	}
+	return true
 }
 
 // testPurchasesByArgH is a handler that imitates the third
