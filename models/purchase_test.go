@@ -17,6 +17,7 @@ func TestPurchasesByArgument(t *testing.T) {
 	r := mux.NewRouter()
 	a := r.Path("/api/").Subrouter()
 	a.HandleFunc("/purchases/by_user/test", http.NotFoundHandler().ServeHTTP)
+	a.HandleFunc("/purchases/by_user/empty", emptyH)
 	a.HandleFunc("/purchases/by_user/{id}", testPurchasesByArgH)
 	a.HandleFunc("/purchases/by_product/{id}", testPurchasesByArgH)
 
@@ -37,8 +38,19 @@ func TestPurchasesByArgument(t *testing.T) {
 		t.Errorf(`Expected %v, nil. Got %v, "%v".`, testPurchases, ps, err)
 	}
 
-	// Make sure that there's an error returned if response status is incorrect.
-	ps, err = PurchasesByUsername("test", 0)
+	// Check all possible errors, including:
+	// 1. incorrect response status.
+	// 2. invalid JSON.
+	for i, arg := range []string{"test", "empty"} {
+		ps, err = PurchasesByUsername(arg, 0)
+		if ps != nil || err == nil {
+			t.Errorf(`Test %d: Expected no result and an error. Got %v, "%v".`, i, ps, err)
+		}
+	}
+}
+
+func TestPurchasesFromURN(t *testing.T) {
+	ps, err := purchasesFromURN("urn_that_doesnt_exist")
 	if ps != nil || err == nil {
 		t.Errorf(`Expected no result and an error. Got %v, "%v".`, ps, err)
 	}
@@ -57,6 +69,11 @@ var testPurchasesByArgH = func(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	w.Write(res)
+}
+
+// emptyH is a handler that renders an empty page.
+var emptyH = func(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusOK)
 }
 
 var testPurchases = []Purchase{
