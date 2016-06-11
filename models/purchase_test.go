@@ -29,20 +29,21 @@ func TestPurchasesByArgument(t *testing.T) {
 	Init(s.URL + "/api/")
 
 	// Check the case when the API's response is a valid JSON.
-	ps, err := PurchasesByProductID("xxx", 0)
-	if err != nil || !reflect.DeepEqual(ps, testPurchases) {
-		t.Errorf(`Expected %v, nil. Got %v, "%v".`, testPurchases, ps, err)
-	}
-	ps, err = PurchasesByUsername("xxx", 0)
-	if err != nil || !reflect.DeepEqual(ps, testPurchases) {
-		t.Errorf(`Expected %v, nil. Got %v, "%v".`, testPurchases, ps, err)
+	for i, fn := range []func(string, uint) ([]Purchase, error){
+		PurchasesByUsername,
+		PurchasesByProductID,
+	} {
+		ps, err := fn("xxx", 0)
+		if err != nil || !reflect.DeepEqual(ps, testPurchases) {
+			t.Errorf(`Test %d: Expected %#v, "nil". Got %#v, "%v".`, i, testPurchases, ps, err)
+		}
 	}
 
 	// Check all possible errors, including:
 	// 1. incorrect response status.
 	// 2. invalid JSON.
 	for i, arg := range []string{"test", "empty"} {
-		ps, err = PurchasesByUsername(arg, 0)
+		ps, err := PurchasesByUsername(arg, 0)
 		if ps != nil || err == nil {
 			t.Errorf(`Test %d: Expected no result and an error. Got %v, "%v".`, i, ps, err)
 		}
