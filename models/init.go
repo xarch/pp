@@ -3,6 +3,7 @@
 package models
 
 import (
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -35,6 +36,20 @@ func get(uri string) ([]byte, error) {
 	// Otherwise, it would be a good idea to limit the number of bytes
 	// we read.
 	return ioutil.ReadAll(res.Body)
+}
+
+// objectFromURN gets a URN of an API, makes a GET request to get the response,
+// parses it, and unmarshals the result.
+// If something goes wrong, an error is returned.
+func objectFromURN(urn string, obj interface{}) error {
+	// Do a GET request to the remote server.
+	res, err := get(remoteAPI + urn)
+	if err != nil {
+		return err
+	}
+
+	// Try to unmarshal the body of the response.
+	return json.Unmarshal(res, &obj)
 }
 
 // Init is a functions that initializes the models.

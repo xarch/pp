@@ -1,7 +1,6 @@
 package models
 
 import (
-	"encoding/json"
 	"fmt"
 	"time"
 )
@@ -22,33 +21,14 @@ type Purchase struct {
 // PurchasesByUsername gets a username and a limit number as input
 // arguments and returns a list of purchases that belong to the
 // related user.
-func PurchasesByUsername(username string, limit uint) ([]Purchase, error) {
-	return purchasesFromURN(fmt.Sprintf(apiPurchasesByUsername, username, limit))
+func PurchasesByUsername(username string, limit uint) (ps []Purchase, err error) {
+	err = objectFromURN(fmt.Sprintf(apiPurchasesByUsername, username, limit), &ps)
+	return
 }
 
 // PurchasesByProductID gets an ID of a product and a limit number as
 // input arguments and returns a list of all purchases of the product.
-func PurchasesByProductID(id string, limit uint) ([]Purchase, error) {
-	return purchasesFromURN(fmt.Sprintf(apiPurchasesByProduct, id, limit))
-}
-
-// purchasesFromURN gets a URN of an API, makes a GET request to get the response,
-// parses it, and returns an unmarshalled result.
-// If something goes wrong, an error is returned as a second argument.
-func purchasesFromURN(urn string) ([]Purchase, error) {
-	ps := []Purchase{}
-
-	// Do a GET request to the remote server.
-	res, err := get(remoteAPI + urn)
-	if err != nil {
-		return nil, err
-	}
-
-	// Try to unmarshal the body of the response.
-	err = json.Unmarshal(res, &ps)
-	if err != nil {
-		return nil, err
-	}
-
-	return ps, nil
+func PurchasesByProductID(id string, limit uint) (ps []Purchase, err error) {
+	err = objectFromURN(fmt.Sprintf(apiPurchasesByProduct, id, limit), &ps)
+	return
 }

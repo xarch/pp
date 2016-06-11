@@ -50,13 +50,6 @@ func TestPurchasesByArgument(t *testing.T) {
 	}
 }
 
-func TestPurchasesFromURN(t *testing.T) {
-	ps, err := purchasesFromURN("urn_that_doesnt_exist")
-	if ps != nil || err == nil {
-		t.Errorf(`Expected no result and an error. Got %v, "%v".`, ps, err)
-	}
-}
-
 // testPurchasesByArgH is a handler that imitates the third
 // party API that provides purchases by username / id.
 var testPurchasesByArgH = func(w http.ResponseWriter, r *http.Request) {
@@ -78,6 +71,6 @@ var emptyH = func(w http.ResponseWriter, r *http.Request) {
 }
 
 var testPurchases = []Purchase{
-	{123, 321, "JohnDoe", time.Now().Round(time.Minute)},
-	{222, 444, "Mr.X", time.Now().Round(time.Minute)},
+	{123, 321, "JohnDoe", time.Now().Local().Round(time.Minute)},
+	{222, 444, "Mr.X", time.Now().Local().Round(time.Minute)},
 }
