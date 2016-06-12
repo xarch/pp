@@ -14,7 +14,7 @@ func TestRenderJSON(t *testing.T) {
 
 	// Trying to render a valid object.
 	obj1 := map[string]int{"a": 1, "b": 2, "c": 3}
-	h1 := renderJSON(http.StatusTeapot, obj1)
+	h1 := renderJSON(http.StatusTeapot, obj1, func([]byte) {})
 	h1(w, r)
 
 	if c := http.StatusTeapot; w.Code != c {
@@ -34,7 +34,7 @@ func TestRenderJSON(t *testing.T) {
 	// Making sure error is rendered if there are
 	// isues with marshaling.
 	obj2 := map[int]int{1: 1, 2: 2, 3: 3}
-	h2 := renderJSON(http.StatusTeapot, obj2)
+	h2 := renderJSON(http.StatusTeapot, obj2, func([]byte) {})
 	h2(w, r)
 
 	if c := http.StatusInternalServerError; w.Code != c {

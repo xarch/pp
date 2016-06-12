@@ -64,11 +64,10 @@ func TestPopularPurchases(t *testing.T) {
 	// Check validness of result.
 	expCT := "application/json"
 	for i, v := range []struct {
-		username  string
-		expStatus int
-		expObj    models.PopularPurchases
+		username string
+		expObj   models.PopularPurchases
 	}{
-		{"Damian26", http.StatusOK, models.PopularPurchases{
+		{"Damian26", models.PopularPurchases{
 			{ // Product ID: 548052.
 				ID: 950513, Product: &models.Product{Face: "(•ω•)", Price: 1172, Size: 16},
 				Recent: []string{"Damian26", "Lynn_Sanford", "Lydia.Hane", "Ransom86"},
@@ -91,18 +90,21 @@ func TestPopularPurchases(t *testing.T) {
 			},
 		}},
 	} {
-		w := httptest.NewRecorder()
-		PopularPurchases(map[string]string{"username": v.username})(w, r)
-		if w.Code != v.expStatus {
-			t.Errorf("Test %d: Expected status %d, got %d.", i, v.expStatus, w.Code)
-		}
-		if ct := w.Header().Get("Content-Type"); ct != expCT {
-			t.Errorf(`Test %d: Incorrect content type. Expected "%s", got "%s".`, i, expCT, ct)
-		}
-		var obj models.PopularPurchases
-		err := json.Unmarshal(w.Body.Bytes(), &obj)
-		if err != nil || !deepEqualPPs(obj, v.expObj) {
-			t.Errorf(`Test %d: Incorrect response. Expected %v, "nil". Got %v, "%v".`, i, v.expObj, obj, err)
+		// Repeating the test twice to test cache.
+		for _, expStatus := range []int{http.StatusOK, http.StatusNotModified} {
+			w := httptest.NewRecorder()
+			PopularPurchases(map[string]string{"username": v.username})(w, r)
+			if w.Code != expStatus {
+				t.Errorf("Test %d: Expected status %d, got %d.", i, expStatus, w.Code)
+			}
+			if ct := w.Header().Get("Content-Type"); ct != expCT {
+				t.Errorf(`Test %d: Incorrect content type. Expected "%s", got "%s".`, i, expCT, ct)
+			}
+			var obj models.PopularPurchases
+			err := json.Unmarshal(w.Body.Bytes(), &obj)
+			if err != nil || !deepEqualPPs(obj, v.expObj) {
+				t.Errorf(`Test %d: Incorrect response. Expected %v, "nil". Got %v, "%v".`, i, v.expObj, obj, err)
+			}
 		}
 	}
 }
@@ -139,11 +141,11 @@ var productByIDH = func(w http.ResponseWriter, r *http.Request) {
 		if testData.Products[i].ID == int(id) {
 			renderJSON(http.StatusOK, map[string]interface{}{
 				"product": testData.Products[i],
-			})(w, r)
+			}, func([]byte) {})(w, r)
 			return
 		}
 	}
-	renderJSON(http.StatusOK, map[string]interface{}{})(w, r)
+	renderJSON(http.StatusOK, map[string]interface{}{}, func([]byte) {})(w, r)
 }
 
 // purchasesByUsernameH handler implements "GET /api/purchases/by_user/{username:[A-Za-z0-9_.-]}
@@ -157,7 +159,7 @@ var purchasesByUsernameH = func(w http.ResponseWriter, r *http.Request) {
 	}
 	renderJSON(http.StatusOK, map[string]interface{}{
 		"purchases": ps,
-	})(w, r)
+	}, func([]byte) {})(w, r)
 }
 
 // purchasesByProductIDH handler implements "GET /api/purchases/by_product/{id:[0-9]}
@@ -176,7 +178,7 @@ var purchasesByProductIDH = func(w http.ResponseWriter, r *http.Request) {
 	}
 	renderJSON(http.StatusOK, map[string]interface{}{
 		"purchases": ps,
-	})(w, r)
+	}, func([]byte) {})(w, r)
 }
 
 // userByNicknameH handler implements "GET /api/users/{nickname:[A-Za-z0-9_.-]}
@@ -185,11 +187,11 @@ var userByNicknameH = func(w http.ResponseWriter, r *http.Request) {
 		if testData.Users[i].Nickname == mux.Vars(r)["username"] {
 			renderJSON(http.StatusOK, map[string]interface{}{
 				"user": testData.Users[i],
-			})(w, r)
+			}, func([]byte) {})(w, r)
 			return
 		}
 	}
-	renderJSON(http.StatusOK, map[string]interface{}{})(w, r)
+	renderJSON(http.StatusOK, map[string]interface{}{}, func([]byte) {})(w, r)
 }
 
 var testData data
