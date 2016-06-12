@@ -4,6 +4,16 @@ import (
 	"encoding/json"
 )
 
+// ppData is the way popular purchases are expected to be
+// represented in the response of the application.
+type ppData struct {
+	ID     int      `json:"id"`
+	Face   string   `json:"face"`
+	Price  int      `json:"price"`
+	Size   int      `json:"size"`
+	Recent []string `json:"recent"`
+}
+
 // PopularPurchases model is a convinience for []PopularPurchase
 // that provides helper methods.
 type PopularPurchases []PopularPurchase
@@ -16,15 +26,33 @@ type PopularPurchase struct {
 	Recent  []string
 }
 
+// UnmarshalJSON implements json.Unmarshaler interface to unmarshal
+// JSON data into the object.
+// It is used for testing purposes only.
+func (m *PopularPurchase) UnmarshalJSON(d []byte) error {
+	var obj ppData
+	err := json.Unmarshal(d, &obj)
+	*m = PopularPurchase{
+		ID: obj.ID,
+		Product: &Product{
+			Face:  obj.Face,
+			Price: obj.Price,
+			Size:  obj.Size,
+		},
+		Recent: obj.Recent,
+	}
+	return err
+}
+
 // MarshalJSON implements json.Marshaler interface to marshal
 // the object into valid JSON.
 func (m *PopularPurchase) MarshalJSON() ([]byte, error) {
-	return json.Marshal(data{
-		"id":     m.ID,
-		"face":   m.Product.Face,
-		"price":  m.Product.Price,
-		"size":   m.Product.Size,
-		"recent": m.Recent,
+	return json.Marshal(ppData{
+		ID:     m.ID,
+		Face:   m.Product.Face,
+		Price:  m.Product.Price,
+		Size:   m.Product.Size,
+		Recent: m.Recent,
 	})
 }
 

@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
+	"reflect"
 	"strconv"
 	"testing"
 
@@ -34,6 +35,10 @@ func TestPopularPurchases(t *testing.T) {
 
 	r, _ := http.NewRequest("GET", "/", nil)
 
+	// Check all kinds of possible errors:
+	// 1. Non-existent user requested.
+	// 2. Inaccessible purchases.
+	// 3. Inaccessible product info.
 	for i, v := range []struct {
 		username                string
 		expStatus               int
@@ -55,6 +60,67 @@ func TestPopularPurchases(t *testing.T) {
 			t.Errorf(`Test %d: Incorrect response body. Expected "%s", got "%s".`, i, v.expBody, w.Body.String())
 		}
 	}
+
+	// Check validness of result.
+	expCT := "application/json"
+	for i, v := range []struct {
+		username  string
+		expStatus int
+		expObj    models.PopularPurchases
+	}{
+		{"Damian26", http.StatusOK, models.PopularPurchases{
+			{ // Product ID: 548052.
+				ID: 950513, Product: &models.Product{Face: "(•ω•)", Price: 1172, Size: 16},
+				Recent: []string{"Damian26", "Lynn_Sanford", "Lydia.Hane", "Ransom86"},
+			},
+			{ // Product ID: 969270.
+				ID: 173904, Product: &models.Product{Face: "(;´༎ຶД༎ຶ`)", Price: 5, Size: 16},
+				Recent: []string{"Damian26", "Lynn_Sanford", "Lydia.Hane", "Juvenal.Eichmann16"},
+			},
+			{ // Product ID: 251137.
+				ID: 300132, Product: &models.Product{Face: "┻━┻ ︵ヽ(`Д´)ﾉ︵ ┻━┻", Price: 88, Size: 27},
+				Recent: []string{"Damian26", "Lydia.Hane", "Ransom86", "Demond74"},
+			},
+			{ // Product ID: 614804.
+				ID: 317230, Product: &models.Product{Face: "(ꐦ°᷄д°᷅)", Price: 1045, Size: 25},
+				Recent: []string{"Damian26", "Kenneth.Gutkowski"},
+			},
+			{ // Product ID: 451451.
+				ID: 234523, Product: &models.Product{Face: "⚈้̤͡ ˌ̫̮ ⚈้̤͡", Price: 929, Size: 29},
+				Recent: []string{"Damian26", "Lynn_Sanford"},
+			},
+		}},
+	} {
+		w := httptest.NewRecorder()
+		PopularPurchases(map[string]string{"username": v.username})(w, r)
+		if w.Code != v.expStatus {
+			t.Errorf("Test %d: Expected status %d, got %d.", i, v.expStatus, w.Code)
+		}
+		if ct := w.Header().Get("Content-Type"); ct != expCT {
+			t.Errorf(`Test %d: Incorrect content type. Expected "%s", got "%s".`, i, expCT, ct)
+		}
+		var obj models.PopularPurchases
+		err := json.Unmarshal(w.Body.Bytes(), &obj)
+		if err != nil || !deepEqualPPs(obj, v.expObj) {
+			t.Errorf(`Test %d: Incorrect response. Expected %v, "nil". Got %v, "%v".`, i, v.expObj, obj, err)
+		}
+	}
+}
+
+// deepEqualPPs gets 2 popular purchases structs, compares them, and
+// returns true if they are equal to each other.
+func deepEqualPPs(pp1, pp2 models.PopularPurchases) bool {
+	if len(pp1) != len(pp2) {
+		return false
+	}
+	for i := 0; i < len(pp1); i++ {
+		if pp1[i].ID != pp2[i].ID || !reflect.DeepEqual(pp1[i].Recent, pp2[i].Recent) ||
+			!reflect.DeepEqual(*pp1[i].Product, *pp2[i].Product) {
+
+			return false
+		}
+	}
+	return true
 }
 
 // Test API Server.

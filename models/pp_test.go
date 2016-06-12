@@ -1,10 +1,35 @@
 package models
 
 import (
+	"encoding/json"
 	"reflect"
 	"sort"
 	"testing"
 )
+
+func TestPopularPurchaseUnmarshalJSON(t *testing.T) {
+	src := []byte(`{"id":123,"face":"xxx","size":15,"price":21,"recent":["John.Doe","Jane.Roe","James_Smith"]}`)
+	exp := PopularPurchase{
+		ID: 123,
+		Product: &Product{
+			ID:    0,
+			Face:  "xxx",
+			Size:  15,
+			Price: 21,
+		},
+		Recent: []string{"John.Doe", "Jane.Roe", "James_Smith"},
+	}
+	var pp PopularPurchase
+	err := json.Unmarshal(src, &pp)
+	if err != nil {
+		t.Error(err)
+	}
+	if pp.ID != exp.ID || !reflect.DeepEqual(pp.Recent, exp.Recent) ||
+		!reflect.DeepEqual(*pp.Product, *exp.Product) {
+
+		t.Errorf(`Incorrect result. Expected: %#v (%v). Got: %#v (%v).`, exp, exp.Product, pp, pp.Product)
+	}
+}
 
 func TestPopularPurchaseMarshalJSON(t *testing.T) {
 	p := PopularPurchase{
