@@ -21,6 +21,9 @@ type Purchase struct {
 // PurchasesByUsername gets a username and a limit number as input
 // arguments and returns a list of purchases that belong to the
 // related user.
+// NB: According to the gdocs the API must return the most recent purchases
+// (i.e. they are sorted by the date).
+// Service "daw-purchases" by-default returns a random unsorted data instead.
 func PurchasesByUsername(username string, limit uint) (ps []Purchase, err error) {
 	err = objectFromURN(fmt.Sprintf(apiPurchasesByUsername, username, limit), &ps)
 	return

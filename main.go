@@ -35,6 +35,7 @@ func main() {
 		Addr:    *addr,
 		Handler: routes.Handler(),
 	}
+	log.Printf(`Listening on "%s"...`, s.Addr)
 	switch *tls {
 	case true:
 		err = s.ListenAndServeTLS(*cert, *key)
