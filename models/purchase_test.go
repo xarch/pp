@@ -27,11 +27,11 @@ func TestPurchasesByArgument(t *testing.T) {
 
 	// Check the case when the API's response is a valid JSON.
 	ps, err := PurchasesByUsername("xxx", 0)
-	if err != nil || !deepEqualPurchases(testPurchases, ps) {
+	if err != nil || !deepEqualPurchases(testPurchases.Data, ps) {
 		t.Errorf(`Expected %v, "nil". Got %v, "%v".`, testPurchases, ps, err)
 	}
 	ps, err = PurchasesByProductID(999, 0)
-	if err != nil || !deepEqualPurchases(testPurchases, ps) {
+	if err != nil || !deepEqualPurchases(testPurchases.Data, ps) {
 		t.Errorf(`Expected %v, "nil". Got %v, "%v".`, testPurchases, ps, err)
 	}
 
@@ -119,7 +119,9 @@ func deepEqualPurchases(ps1, ps2 []Purchase) bool {
 	return true
 }
 
-var testPurchases = []Purchase{
-	{123, 321, "JohnDoe", time.Now().Local().Round(time.Minute)},
-	{222, 444, "Mr.X", time.Now().Local().Round(time.Minute)},
+var testPurchases = purchasesData{
+	Data: []Purchase{
+		{123, 321, "JohnDoe", time.Now().Local().Round(time.Minute)},
+		{222, 444, "Mr.X", time.Now().Local().Round(time.Minute)},
+	},
 }

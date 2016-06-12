@@ -14,6 +14,12 @@ const (
 // multiple orders of a product / products.
 type Purchases []Purchase
 
+// purchasesData is a type that's used for representation of
+// Purchases by the third party API.
+type purchasesData struct {
+	Data Purchases `json:"purchases"`
+}
+
 // Purchase type represents information a single order.
 type Purchase struct {
 	ID        int       `json:"id,omitempty"`
@@ -28,17 +34,25 @@ type Purchase struct {
 // NB: According to the gdocs the API must return the most recent purchases
 // (i.e. they are sorted by the date).
 // Service "daw-purchases" by-default returns a random unsorted data instead.
-func PurchasesByUsername(username string, limit uint) (ps Purchases, err error) {
+func PurchasesByUsername(username string, limit uint) (Purchases, error) {
 	// Get the user's recent purchases.
-	err = objectFromURN(fmt.Sprintf(apiPurchasesByUsername, username, limit), &ps)
-	return
+	var d purchasesData
+	err := objectFromURN(fmt.Sprintf(apiPurchasesByUsername, username, limit), &d)
+	if err != nil {
+		return nil, err
+	}
+	return d.Data, nil
 }
 
 // PurchasesByProductID gets an ID of a product and a limit number as
 // input arguments and returns a list of all purchases of the product.
-func PurchasesByProductID(id int, limit uint) (ps Purchases, err error) {
-	err = objectFromURN(fmt.Sprintf(apiPurchasesByProduct, id, limit), &ps)
-	return
+func PurchasesByProductID(id int, limit uint) (Purchases, error) {
+	var d purchasesData
+	err := objectFromURN(fmt.Sprintf(apiPurchasesByProduct, id, limit), &d)
+	if err != nil {
+		return nil, err
+	}
+	return d.Data, nil
 }
 
 // CustomerUsernames returns a slice of usernames the purchases' customers.
