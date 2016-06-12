@@ -15,6 +15,8 @@ var (
 	remoteAPI string
 )
 
+type data map[string]interface{}
+
 // get does a request to the specified URI, makes sure the status
 // code is 200 OK, and returns the response body or a non-nil error.
 func get(uri string) ([]byte, error) {

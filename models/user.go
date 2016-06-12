@@ -15,6 +15,9 @@ type User struct {
 	Email    string `json:"email"`
 }
 
+// UserByNickname gets a username and returns an associated user
+// if he/she does exist. It returns a non-nil error otherwise
+// or if a connection to the API cannot be established.
 func UserByNickname(nickname string) (u *User, err error) {
 	err = objectFromURN(fmt.Sprintf(apiUserByNickname, nickname), &u)
 	return

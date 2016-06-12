@@ -1,8 +1,8 @@
 package models
 
 import (
-	"net/http"
 	"net/http/httptest"
+	"reflect"
 	"testing"
 	"time"
 
@@ -14,10 +14,9 @@ func TestPurchasesByArgument(t *testing.T) {
 	// returns the same JSON response.
 	r := mux.NewRouter()
 	a := r.Path("/api/").Subrouter()
-	a.HandleFunc("/purchases/by_user/test", http.NotFoundHandler().ServeHTTP)
-	a.HandleFunc("/purchases/by_user/empty", emptyH)
 	a.HandleFunc("/purchases/by_user/{id}", renderJSONHandlerFn(testPurchases))
 	a.HandleFunc("/purchases/by_product/{id}", renderJSONHandlerFn(testPurchases))
+	a.HandleFunc("/users/some.username", renderJSONHandlerFn(testUser))
 
 	// Creating a test server with the API.
 	s := httptest.NewServer(a)
@@ -27,24 +26,36 @@ func TestPurchasesByArgument(t *testing.T) {
 	Init(s.URL + "/api/")
 
 	// Check the case when the API's response is a valid JSON.
-	for i, fn := range []func(string, uint) ([]Purchase, error){
-		PurchasesByUsername,
-		PurchasesByProductID,
-	} {
-		ps, err := fn("xxx", 0)
-		if err != nil || !deepEqualPurchases(testPurchases, ps) {
-			t.Errorf(`Test %d: Expected %#v, "nil". Got %#v, "%v".`, i, testPurchases, ps, err)
-		}
+	ps, err := PurchasesByUsername("some.username", 0)
+	if err != nil || !deepEqualPurchases(testPurchases, ps) {
+		t.Errorf(`Expected %v, "nil". Got %v, "%v".`, testPurchases, ps, err)
+	}
+	ps, err = PurchasesByProductID(999, 0)
+	if err != nil || !deepEqualPurchases(testPurchases, ps) {
+		t.Errorf(`Expected %v, "nil". Got %v, "%v".`, testPurchases, ps, err)
 	}
 
-	// Check all possible errors, including:
-	// 1. incorrect response status.
-	// 2. invalid JSON.
-	for i, arg := range []string{"test", "empty"} {
-		ps, err := PurchasesByUsername(arg, 0)
-		if ps != nil || err == nil {
-			t.Errorf(`Test %d: Expected no result and an error. Got %v, "%v".`, i, ps, err)
-		}
+	// Check non-existent user.
+	ps, err = PurchasesByUsername("xxx", 0)
+	if ps != nil || err == nil {
+		t.Errorf(`Expected no result and an error. Got %v, "%v".`, ps, err)
+	}
+}
+
+func TestPurchasesCustomerUsernames(t *testing.T) {
+	ps := Purchases{
+		{Username: "aaa"},
+		{Username: "bbb"},
+		{Username: "ccc"},
+		{Username: "bbb"},
+		{Username: "bbb"},
+		{Username: "aaa"},
+		{Username: "aaa"},
+		{Username: "ddd"},
+	}
+	exp := []string{"aaa", "bbb", "ccc", "ddd"}
+	if us := ps.CustomerUsernames(); !reflect.DeepEqual(us, exp) {
+		t.Errorf("Incorrect usernames. Expected: %v, got: %v.", exp, us)
 	}
 }
 
