@@ -4,6 +4,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 )
@@ -17,28 +18,32 @@ func renderJSON(status int, obj interface{}) http.HandlerFunc {
 		res, err := json.Marshal(obj)
 		if err != nil {
 			// Run the error handler if the object cannot be marshelled.
-			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+			renderError(err)
 			return
 		}
 
 		// Otherwise, render the JSON.
-		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(status)
-		_, err = w.Write(res)
-		if err != nil {
-			log.Println(err)
-		}
+		w.Header().Set("Content-Type", "application/json")
+		w.Write(res)
 	}
 }
 
 // renderText returns a handler function that renders the text it gets
 // as an input argument with the specified status code.
 // Content-Type of the response is "plain/text".
-func renderText(status int, text string) http.HandlerFunc {
+func renderText(status int, text string, params ...interface{}) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		// Render the text.
-		w.Header().Set("Content-Type", "plain/text")
 		w.WriteHeader(status)
-		w.Write([]byte(text))
+		w.Header().Set("Content-Type", "plain/text")
+		w.Write([]byte(fmt.Sprintf(text, params...)))
+	}
+}
+
+// renderError returns a handler function for rendering an internal server error.
+func renderError(err error) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		log.Println(err.Error())
+		renderText(http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError))
 	}
 }

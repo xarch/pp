@@ -41,8 +41,8 @@ func Handler() http.Handler {
 // In comparison, in case of a slice it would be O(n).
 // But if n is small, O(n) < O(1+c). Thus, consider
 // replacing the context's type if another router is in use.
-func wrap(fn func(http.ResponseWriter, *http.Request, map[string]string)) http.HandlerFunc {
+func wrap(fn func(http.ResponseWriter, *http.Request, map[string]string) http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		fn(w, r, mux.Vars(r))
+		fn(w, r, mux.Vars(r))(w, r)
 	}
 }
