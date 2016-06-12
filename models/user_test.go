@@ -10,6 +10,7 @@ import (
 
 func TestUserByUsername(t *testing.T) {
 	r := mux.NewRouter()
+	r.HandleFunc("/api/users/test", emptyJSON)
 	r.HandleFunc("/api/users/{id}", renderJSONHandlerFn(testUser))
 
 	// Creating a test server imitating a third party API.
@@ -19,10 +20,16 @@ func TestUserByUsername(t *testing.T) {
 	// Setting the API's URI.
 	Init(s.URL + "/api/")
 
-	// Make sure ProductByID returns a valid Product.
+	// Make sure UserByNickname returns a valid User.
 	u, err := UserByNickname("some.username")
 	if err != nil || reflect.DeepEqual(testUser, u) {
-		t.Errorf(`Expected %v, "nil". Got %v, "%v".`, testProduct, u, err)
+		t.Errorf(`Expected %v, "nil". Got %v, "%v".`, testUser, u, err)
+	}
+
+	// Make sure an error is returned if user is not found.
+	u, err = UserByNickname("test")
+	if err == nil || u != nil {
+		t.Errorf(`Expected nil, error. Got %v, "%v".`, u, err)
 	}
 }
 

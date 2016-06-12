@@ -4,7 +4,6 @@ package models
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -30,7 +29,7 @@ func get(uri string) ([]byte, error) {
 
 	// Make sure the status code is 200 OK.
 	if sc := res.StatusCode; sc != http.StatusOK {
-		return nil, fmt.Errorf(`unexpected status code "%d"`, sc)
+		return nil, fmt.Errorf(`%s: unexpected status code "%d"`, uri, sc)
 	}
 
 	// Try to read the body of the response.
@@ -46,7 +45,8 @@ func get(uri string) ([]byte, error) {
 // If something goes wrong, an error is returned.
 func objectFromURN(urn string, obj interface{}) error {
 	// Do a GET request to the remote server.
-	res, err := get(remoteAPI + urn)
+	uri := remoteAPI + urn
+	res, err := get(uri)
 	if err != nil {
 		return err
 	}
@@ -58,7 +58,7 @@ func objectFromURN(urn string, obj interface{}) error {
 	// NB: Theoretically it could also return the "{}" with spaces inside
 	// the brackets or outside. So, this check would not be enough.
 	if string(res) == "{}" {
-		return errors.New("empty response, requested object was not found")
+		return fmt.Errorf("%s: empty response, requested object was not found", uri)
 	}
 
 	// Try to unmarshal the body of the response.
