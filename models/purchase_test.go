@@ -42,6 +42,48 @@ func TestPurchasesByArgument(t *testing.T) {
 	}
 }
 
+func TestPurchasePopular_FailToGetProduct(t *testing.T) {
+	p := Purchase{ProductID: 123}
+	pp, err := p.Popular(1)
+	if pp != nil || err == nil {
+		t.Errorf("Cannot get product. Expected: nil, error. Got: %v, %v.", pp, err)
+	}
+}
+
+func TestPurchasesPopular(t *testing.T) {
+	// Imitating a third party API. Unlike the real one this always
+	// returns the same JSON response.
+	r := mux.NewRouter()
+	a := r.Path("/api/").Subrouter()
+	a.HandleFunc("/products/{id}", renderJSONHandlerFn(testProduct))
+	a.HandleFunc("/purchases/by_product/777", emptyH)
+	a.HandleFunc("/purchases/by_product/{id}", renderJSONHandlerFn(testPurchases))
+
+	// Creating a test server with the API.
+	s := httptest.NewServer(a)
+	defer s.Close()
+
+	// Setting the API's URI.
+	Init(s.URL + "/api/")
+
+	// If purchases cannot be fetched, an error is expected.
+	ps := Purchases{{ProductID: 777}}
+	pp, err := ps.Popular(1)
+	if pp != nil || err == nil {
+		t.Errorf("Cannot get purchases. Expected: nil, error. Got: %v, %v.", pp, err)
+	}
+
+	// Checking a case when no error is expected.
+	ps = Purchases{{ID: 456, ProductID: testProduct.ID}}
+	pp, err = ps.Popular(1)
+	exp := PopularPurchases{
+		{ID: 456, Product: &testProduct, Recent: []string{"JohnDoe", "Mr.X"}},
+	}
+	if err != nil || !reflect.DeepEqual(pp, exp) {
+		t.Errorf(`Incorrect popular purchases. Expected %v, "nil". Got %v, "%v".`, exp, pp, err)
+	}
+}
+
 func TestPurchasesCustomerUsernames(t *testing.T) {
 	ps := Purchases{
 		{Username: "aaa"},

@@ -55,3 +55,36 @@ func (m Purchases) CustomerUsernames() (us []string) {
 	}
 	return
 }
+
+// Popular allocates and returns a new PopularPurchase.
+// NB: This function is not atomic.
+func (m Purchase) Popular(limit uint) (*PopularPurchase, error) {
+	// Try to get product info.
+	p, err := ProductByID(m.ProductID)
+	if err != nil {
+		return nil, err
+	}
+	// Try to get buyers of the product (aka customers).
+	cs, err := PurchasesByProductID(m.ProductID, limit)
+	if err != nil {
+		return nil, err
+	}
+	return &PopularPurchase{
+		ID:      m.ID,
+		Product: p,
+		Recent:  cs.CustomerUsernames(),
+	}, nil
+}
+
+// Popular allocates and returns new PopularPurchases.
+// NB: This function is not atomic.
+func (m Purchases) Popular(limit uint) (ps PopularPurchases, err error) {
+	for i := range m {
+		p, err := m[i].Popular(limit)
+		if err != nil {
+			return nil, err
+		}
+		ps = append(ps, *p)
+	}
+	return
+}
