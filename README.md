@@ -2,7 +2,7 @@
 PP is a Popular Purchases microservice for the Discount Ascii Warehouse ecommerce platform.
 
 ### Usage
-```go
+```bash
 # Upgrade your local version of the repo.
 go get -u github.com/alkchr/pp
 
