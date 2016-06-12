@@ -43,7 +43,7 @@ func renderText(status int, text string, params ...interface{}) http.HandlerFunc
 // renderError returns a handler function for rendering an internal server error.
 func renderError(err error) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		log.Println(err.Error())
+		log.Printf(`Unexpected error: "%s"`, err.Error())
 		renderText(http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError))
 	}
 }
