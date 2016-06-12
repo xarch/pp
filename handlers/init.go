@@ -1,4 +1,4 @@
-// Package handlers provides the standard library compatable HTTP handler
+// Package handlers provides the standard library compatible HTTP handler
 // functions that implement the business logic of the application.
 package handlers
 

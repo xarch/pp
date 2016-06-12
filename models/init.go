@@ -56,7 +56,7 @@ func objectFromURN(urn string, obj interface{}) error {
 	// with a status code. But instead returns an empty json.
 	// Ideally, that should be fixed.
 	// NB: Theoretically it could also return the "{}" with spaces inside
-	// the brackets or outside. So, this check would not be enough.
+	// the brackets or outside. So, this check could not be enough.
 	if string(res) == "{}" {
 		return fmt.Errorf("%s: empty response, requested object was not found", uri)
 	}
