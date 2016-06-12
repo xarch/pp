@@ -1,5 +1,9 @@
 package models
 
+import (
+	"encoding/json"
+)
+
 // PopularPurchases model is a convinience for []PopularPurchase
 // that provides helper methods.
 type PopularPurchases []PopularPurchase
@@ -12,20 +16,35 @@ type PopularPurchase struct {
 	Recent  []string
 }
 
-// PopularPurchasesByNickname returns information about the most popular
-// purchases using the following algorithm:
-// 1. Fetch N recent purchases for the user.
-// 2. For each of that product get a list of people who previously purchased it.
-// 3. Fetch the products' details.
-// 4. Sort the result: elements with the highest number of purchasers first.
-// NB: Operations of the function are not atomic!
-/*func PopularPurchasesByNickname(nickname string, limit uint) (PopularPurchases, error) {
-	// Make sure the requested user does exist.
-	u, err := UserByNickname(nickname)
-	if err != nil {
-		return nil, err
-	}
+// MarshalJSON implements json.Marshaler interface to marshal
+// the object into valid JSON.
+func (m *PopularPurchase) MarshalJSON() ([]byte, error) {
+	return json.Marshal(data{
+		"id":     m.ID,
+		"face":   m.Product.Face,
+		"price":  m.Product.Price,
+		"size":   m.Product.Size,
+		"recent": m.Recent,
+	})
+}
 
-	// Get recent purchases of the current user.
-	ps, err := PurchasesByUsername(u.Nickname,
-}*/
+// Len is part of sort.Interface. It returns a number of elements.
+func (m PopularPurchases) Len() int {
+	return len(m)
+}
+
+// Swap is part of sort.Interface. It gets two indexes and swaps
+// related elements.
+func (m PopularPurchases) Swap(i, j int) {
+	m[i], m[j] = m[j], m[i]
+}
+
+// Less is part of sort.Interface. It gets two indexes and checks
+// whether i-th element is less than j-th one.
+// The criteria of comparing is the number of recent buyers.
+func (m PopularPurchases) Less(i, j int) bool {
+	if len(m[i].Recent) < len(m[j].Recent) {
+		return false
+	}
+	return true
+}
