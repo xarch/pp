@@ -20,20 +20,22 @@ func TestObjectFromURN(t *testing.T) {
 	r := mux.NewRouter()
 	r.HandleFunc("/incorrect/status", http.NotFoundHandler().ServeHTTP)
 	r.HandleFunc("/non/json", emptyH)
+	r.HandleFunc("/empty/json", emptyJSON)
 
 	// Creating a test server with the API.
 	s := httptest.NewServer(r)
 	defer s.Close()
 
 	// Setting the API's URI.
-	Init(s.URL + "/api/")
+	Init(s.URL)
 
 	// Checking all kinds of errors:
 	// 1. Incorrect status code of response.
 	// 2. Non-json response.
-	for _, urn := range []string{"/incorrect/status", "/non/json"} {
+	// 3. Empty JSON object "{}" response.
+	for _, urn := range []string{"/incorrect/status", "/non/json", "/empty/json"} {
 		var obj interface{}
-		err := objectFromURN(remoteAPI+urn, &obj)
+		err := objectFromURN(urn, &obj)
 		if err == nil || obj != nil {
 			t.Errorf(`Expected nil, error. Got %v, %v.`, obj, err)
 		}
@@ -61,4 +63,11 @@ func renderJSONHandlerFn(obj interface{}) http.HandlerFunc {
 // emptyH is a handler that renders an empty page.
 var emptyH = func(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
+}
+
+// empty is a handler that renders an empty page.
+var emptyJSON = func(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusOK)
+	w.Header().Set("Content-Type", "application/json")
+	w.Write([]byte("{}"))
 }

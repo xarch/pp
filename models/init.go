@@ -4,6 +4,7 @@ package models
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -48,6 +49,16 @@ func objectFromURN(urn string, obj interface{}) error {
 	res, err := get(remoteAPI + urn)
 	if err != nil {
 		return err
+	}
+
+	// Make sure the result is not "{}". This is to fix behaviour of
+	// daw-purchases service that doesn't indicate non-existent user/product
+	// with a status code. But instead returns an empty json.
+	// Ideally, that should be fixed.
+	// NB: Theoretically it could also return the "{}" with spaces inside
+	// the brackets or outside. So, this check would not be enough.
+	if string(res) == "{}" {
+		return errors.New("empty response, requested object was not found")
 	}
 
 	// Try to unmarshal the body of the response.
