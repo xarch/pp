@@ -25,19 +25,12 @@ type Purchase struct {
 // PurchasesByUsername gets a username and a limit number as input
 // arguments and returns a list of purchases that belong to the
 // related user.
-// If the requested user does not exist a non-nil error is returned.
 // NB: According to the gdocs the API must return the most recent purchases
 // (i.e. they are sorted by the date).
 // Service "daw-purchases" by-default returns a random unsorted data instead.
-// NB: Function is not atomic!
 func PurchasesByUsername(username string, limit uint) (ps Purchases, err error) {
-	// Make sure the requested user does exist.
-	u, err := UserByNickname(username)
-	if err != nil {
-		return
-	}
 	// Get the user's recent purchases.
-	err = objectFromURN(fmt.Sprintf(apiPurchasesByUsername, u.Nickname, limit), &ps)
+	err = objectFromURN(fmt.Sprintf(apiPurchasesByUsername, username, limit), &ps)
 	return
 }
 

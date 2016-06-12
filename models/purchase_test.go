@@ -14,9 +14,9 @@ func TestPurchasesByArgument(t *testing.T) {
 	// returns the same JSON response.
 	r := mux.NewRouter()
 	a := r.Path("/api/").Subrouter()
+	a.HandleFunc("/purchases/by_user/incorrect", emptyH)
 	a.HandleFunc("/purchases/by_user/{id}", renderJSONHandlerFn(testPurchases))
 	a.HandleFunc("/purchases/by_product/{id}", renderJSONHandlerFn(testPurchases))
-	a.HandleFunc("/users/some.username", renderJSONHandlerFn(testUser))
 
 	// Creating a test server with the API.
 	s := httptest.NewServer(a)
@@ -26,7 +26,7 @@ func TestPurchasesByArgument(t *testing.T) {
 	Init(s.URL + "/api/")
 
 	// Check the case when the API's response is a valid JSON.
-	ps, err := PurchasesByUsername("some.username", 0)
+	ps, err := PurchasesByUsername("xxx", 0)
 	if err != nil || !deepEqualPurchases(testPurchases, ps) {
 		t.Errorf(`Expected %v, "nil". Got %v, "%v".`, testPurchases, ps, err)
 	}
@@ -36,7 +36,7 @@ func TestPurchasesByArgument(t *testing.T) {
 	}
 
 	// Check non-existent user.
-	ps, err = PurchasesByUsername("xxx", 0)
+	ps, err = PurchasesByUsername("incorrect", 0)
 	if ps != nil || err == nil {
 		t.Errorf(`Expected no result and an error. Got %v, "%v".`, ps, err)
 	}
