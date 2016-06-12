@@ -23,7 +23,7 @@ type purchasesData struct {
 // Purchase type represents information a single order.
 type Purchase struct {
 	ID        int       `json:"id,omitempty"`
-	ProductID int       `json:"product_id"`
+	ProductID int       `json:"productId"`
 	Username  string    `json:"username"`
 	Date      time.Time `json:"date,omitempty"`
 }
