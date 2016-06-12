@@ -1,5 +1,18 @@
 # pp
-Popular Purchases (PP) microservice for the Discount Ascii Warehouse ecommerce platform
+PP is a Popular Purchases microservice for the Discount Ascii Warehouse ecommerce platform.
+
+### Usage
+```go
+# Upgrade your local version of the repo.
+go get -u github.com/alkchr/pp
+
+# Change location to the root of the project.
+cd $GOPATH/src/github.com/alkchr/pp
+
+# Run the application for testing.
+go run main.go --purchases:api.uri="http://74.50.59.155:6000/api/"
+```
+Optionally, change parameters of the `config/app.ini` before running the app.
 
 ### Status
 [![GoDoc](https://godoc.org/github.com/alkchr/pp?status.svg)](https://godoc.org/github.com/alkchr/pp)
