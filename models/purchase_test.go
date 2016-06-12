@@ -74,10 +74,10 @@ func TestPurchasesPopular(t *testing.T) {
 	}
 
 	// Checking a case when no error is expected.
-	ps = Purchases{{ID: 456, ProductID: testProduct.ID}}
+	ps = Purchases{{ID: 456, ProductID: testProduct.Data.ID}}
 	pp, err = ps.Popular(1)
 	exp := PopularPurchases{
-		{ID: 456, Product: &testProduct, Recent: []string{"JohnDoe", "Mr.X"}},
+		{ID: 456, Product: testProduct.Data, Recent: []string{"JohnDoe", "Mr.X"}},
 	}
 	if err != nil || !reflect.DeepEqual(pp, exp) {
 		t.Errorf(`Incorrect popular purchases. Expected %v, "nil". Got %v, "%v".`, exp, pp, err)

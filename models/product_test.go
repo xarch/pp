@@ -26,9 +26,11 @@ func TestProductByID(t *testing.T) {
 	}
 }
 
-var testProduct = Product{
-	ID:    123,
-	Face:  "xxx",
-	Size:  55,
-	Price: 99,
+var testProduct = productData{
+	Data: &Product{
+		ID:    123,
+		Face:  "xxx",
+		Size:  55,
+		Price: 99,
+	},
 }
