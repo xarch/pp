@@ -33,16 +33,14 @@ func Handler() http.Handler {
 	return api
 }
 
-// wrap is a helper that gets a handler function with the
-// third context parameter as input and returns a standard handler function.
-// It is used for passing mux's parameters to the handlers.
+// wrap is a helper that gets a function expecting a map[string]string context as input
+// and returning an HTTP HandlerFunc.
 //
-// NB: complexity of getting a single element from a map is O(1+c).
-// In comparison, in case of a slice it would be O(n).
-// But if n is small, O(n) < O(1+c). Thus, consider
-// replacing the context's type if another router is in use.
-func wrap(fn func(http.ResponseWriter, *http.Request, map[string]string) http.HandlerFunc) http.HandlerFunc {
+// NB: A router that uses a slice instead of map for parameters
+// could be faster. As the complexity of getting a single element from a map is O(1+c).
+// In comparison, in case of a slice it would be O(n). And if n is small, O(n) < O(1+c).
+func wrap(fn func(map[string]string) http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		fn(w, r, mux.Vars(r))(w, r)
+		fn(mux.Vars(r))(w, r)
 	}
 }

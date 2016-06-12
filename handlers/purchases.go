@@ -8,20 +8,24 @@ import (
 	"github.com/alkchr/pp/models"
 )
 
+const (
+	notFoundMsg = "User with username of '%s' was not found"
+)
+
 var (
 	apiURI               = flag.String("purchases:api.uri", "http://127.0.0.1/", "Address of the purchases API")
 	recentPurchasesNum   = flag.Uint("purchases:recent.num", 5, "Number of recent purchases to use")
 	purchasersPerProduct = flag.Uint("purchases:customers.limit", 150, "Maximum number of customers per product")
 )
 
-// PopularPurchases is a handler function that uses the following algorithm
+// PopularPurchases returns a handler function that uses the following algorithm
 // for rendering the list of the most popular purchases:
 // 1. Fetch N recent purchases for the user.
 // 2. For each of that product get a list of people who previously purchased it.
 // 3. Fetch the products' details.
 // 4. Sort the result: elements with the highest number of purchasers first.
 // TODO: implement caching.
-func PopularPurchases(w http.ResponseWriter, r *http.Request, c map[string]string) http.HandlerFunc {
+func PopularPurchases(c map[string]string) http.HandlerFunc {
 	// NB: all input arguments must be validated using
 	// a whitelist of allowed characters. We are not doing that for the username as
 	// router already handles this for us.
@@ -35,7 +39,7 @@ func PopularPurchases(w http.ResponseWriter, r *http.Request, c map[string]strin
 	// If he/she doesn't render a not found error.
 	u, err := models.UserByNickname(nickname)
 	if err != nil {
-		return renderText(http.StatusNotFound, "User with username of '%s' was not found", nickname)
+		return renderText(http.StatusNotFound, notFoundMsg, nickname)
 	}
 
 	// Get current user's recent purchases.
