@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/alkchr/pp/handlers"
 	"github.com/alkchr/pp/routes"
 
 	"github.com/goaltools/iniflag"
@@ -28,6 +29,9 @@ func main() {
 	// available as flags.
 	err := iniflag.Parse("config/app.ini")
 	assertNil(err)
+
+	// Initialize handlers.
+	handlers.Init()
 
 	// Allocate and run a new server. Depending on the
 	// configuration use either HTTP or HTTPS.
