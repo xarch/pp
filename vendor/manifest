@@ -1,0 +1,61 @@
+{
+	"version": 0,
+	"dependencies": [
+		{
+			"importpath": "github.com/Thomasdezeeuw/ini",
+			"repository": "https://github.com/Thomasdezeeuw/ini",
+			"vcs": "git",
+			"revision": "c57cb74a90db4eca7390ac08992f7555eabfc1aa",
+			"branch": "master",
+			"notests": true
+		},
+		{
+			"importpath": "github.com/allegro/bigcache",
+			"repository": "https://github.com/allegro/bigcache",
+			"vcs": "git",
+			"revision": "966b0b4789807113be5c356462bcae45af45d9d7",
+			"branch": "master",
+			"notests": true
+		},
+		{
+			"importpath": "github.com/coocood/freecache",
+			"repository": "https://github.com/coocood/freecache",
+			"vcs": "git",
+			"revision": "1aa53c26cb85c33eef6d832305447982e95f844c",
+			"branch": "master",
+			"notests": true
+		},
+		{
+			"importpath": "github.com/goaltools/iniflag",
+			"repository": "https://github.com/goaltools/iniflag",
+			"vcs": "git",
+			"revision": "1703585368368f7f34a42789c323ca69897262e0",
+			"branch": "master",
+			"notests": true
+		},
+		{
+			"importpath": "github.com/gorilla/context",
+			"repository": "https://github.com/gorilla/context",
+			"vcs": "git",
+			"revision": "aed02d124ae4a0e94fea4541c8effd05bf0c8296",
+			"branch": "master",
+			"notests": true
+		},
+		{
+			"importpath": "github.com/gorilla/mux",
+			"repository": "https://github.com/gorilla/mux",
+			"vcs": "git",
+			"revision": "9fa818a44c2bf1396a17f9d5a3c0f6dd39d2ff8e",
+			"branch": "master",
+			"notests": true
+		},
+		{
+			"importpath": "github.com/spaolacci/murmur3",
+			"repository": "https://github.com/spaolacci/murmur3",
+			"vcs": "git",
+			"revision": "0d12bf811670bf6a1a63828dfbd003eded177fce",
+			"branch": "master",
+			"notests": true
+		}
+	]
+}
